@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍌 Banana Condition Detection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 25px;
+            background: #f7fafc;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .upload-area {
+            border: 3px dashed #cbd5e0;
+            border-radius: 15px;
+            padding: 50px;
+            text-align: center;
+            transition: all 0.3s;
+            background: #f7fafc;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+        
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e2e8f0;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+        }
+        
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+        
+        .btn-danger {
+            background: #fc8181;
+        }
+        
+        .btn-danger:hover {
+            background: #f56565;
+        }
+        
+        .btn-info {
+            background: #4299e1;
+        }
+        
+        .btn-info:hover {
+            background: #3182ce;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .results-container {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .image-preview {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .image-preview .placeholder {
+            padding: 50px 20px;
+            color: #a0aec0;
+        }
+        
+        .image-preview .placeholder .big-icon {
+            font-size: 80px;
+            display: block;
+            margin-bottom: 15px;
+        }
+        
+        .info-panel {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-card h3 {
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .info-card h4 {
+            color: #2d3748;
+            margin: 0;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+        }
+        
+        .stage-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stage-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+        
+        .confidence-bar {
+            width: 100%;
+            height: 8px;
+            background: #edf2f7;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78, #667eea);
+            transition: width 1s ease;
+        }
+        
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #718096;
+        }
+        
+        .video-container {
+            text-align: center;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            min-height: 480px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .video-container img {
+            width: 100%;
+            max-height: 600px;
+            object-fit: contain;
+        }
+        
+        .video-placeholder {
+            color: white;
+            padding: 50px;
+        }
+        
+        .video-placeholder .big-icon {
+            font-size: 80px;
+            display: block;
+            margin-bottom: 15px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .defect-alert {
+            background: #fff5f5;
+            border-left: 4px solid #fc8181;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .defect-alert strong {
+            color: #c53030;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .usage-tag {
+            background: #ebf8ff;
+            color: #2b6cb0;
+            padding: 3px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        
+        .stage-reference-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s;
+        }
+        
+        .stage-reference-card:hover {
+            transform: translateX(5px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-item .number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-item .label {
+            font-size: 12px;
+            color: #718096;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #718096;
+        }
+        
+        .no-results .big-icon {
+            font-size: 60px;
+            display: block;
+            margin-bottom: 15px;
+        }
+        
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .status-indicator .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-indicator .dot.green {
+            background: #48bb78;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .status-indicator .dot.red {
+            background: #fc8181;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
+        /* Scrollbar styling */
+        .info-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .info-panel::-webkit-scrollbar-track {
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+        
+        .info-panel::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 10px;
+        }
+        
+        .info-panel::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                text-align: center;
+                min-width: 80px;
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .upload-area {
+                padding: 30px 20px;
+            }
+            
+            .image-preview img {
+                max-height: 300px;
+            }
+            
+            .video-container {
+                min-height: 300px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.4em;
+            }
+            
+            .tab {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            
+            .btn {
+                padding: 8px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍌 Banana Condition Detection System</h1>
+        <p class="subtitle">Upload an image or use live camera to detect banana ripeness and defects</p>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('upload')">📤 Upload Image</button>
+            <button class="tab" onclick="switchTab('camera')">📸 Live Camera</button>
+            <button class="tab" onclick="switchTab('stages')">📊 All Stages</button>
+        </div>
+        
+        <!-- Tab 1: Upload -->
+        <div id="upload-tab" class="tab-content active">
+            <div class="upload-area" id="uploadArea" 
+                 onclick="document.getElementById('fileInput').click()"
+                 ondragover="handleDragOver(event)"
+                 ondragleave="handleDragLeave(event)"
+                 ondrop="handleDrop(event)">
+                <div class="upload-icon">📁</div>
+                <h3>Click or Drag & Drop to Upload</h3>
+                <p style="color: #718096;">Supported: PNG, JPG, JPEG, GIF</p>
+                <p style="color: #a0aec0; font-size: 14px; margin-top: 5px;">Maximum file size: 16MB</p>
+                <input type="file" id="fileInput" accept="image/*" onchange="handleFileUpload(this.files)">
+            </div>
+            
+            <div id="uploadResults"></div>
+        </div>
+        
+        <!-- Tab 2: Live Camera -->
+        <div id="camera-tab" class="tab-content">
+            <div class="camera-controls">
+                <button class="btn btn-secondary" onclick="startCamera()">📷 Start Camera</button>
+                <button class="btn btn-danger" onclick="stopCamera()">⏹ Stop Camera</button>
+                <button class="btn btn-info" onclick="captureFromCamera()">📸 Capture & Analyze</button>
+                <span id="cameraStatus" class="status-indicator">
+                    <span class="dot red"></span>
+                    Stopped
+                </span>
+            </div>
+            
+            <div class="video-container" id="videoContainer">
+                <img id="liveCamera" src="" alt="Camera Feed" style="display: none;">
+                <div class="video-placeholder" id="cameraPlaceholder">
+                    <span class="big-icon">📷</span>
+                    <p>Camera feed will appear here</p>
+                    <p style="font-size: 14px; color: #a0aec0;">Click "Start Camera" to begin</p>
+                </div>
+            </div>
+            
+            <div id="cameraResults" style="margin-top: 20px;"></div>
+        </div>
+        
+        <!-- Tab 3: Stages Reference -->
+        <div id="stages-tab" class="tab-content">
+            <h3 style="margin-bottom: 15px;">📊 All Banana Ripeness Stages</h3>
+            <p style="color: #718096; margin-bottom: 20px;">Click on any stage to see more details</p>
+            <div id="stagesList" class="grid-2"></div>
+        </div>
+    </div>
+    
+    <script>
+        // ============================================
+        // GLOBAL VARIABLES
+        // ============================================
+        let cameraStream = null;
+        let cameraInterval = null;
+        let isCameraRunning = false;
+        let currentTab = 'upload';
+        let stagesData = {};
+        
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStages();
+        });
+        
+        // ============================================
+        // LOAD STAGES REFERENCE
+        // ============================================
+        function loadStages() {
+            fetch('/get_stages')
+                .then(res => res.json())
+                .then(stages => {
+                    stagesData = stages;
+                    displayStages(stages);
+                })
+                .catch(error => {
+                    console.error('Error loading stages:', error);
+                    document.getElementById('stagesList').innerHTML = `
+                        <div class="info-card" style="border-left-color: #fc8181;">
+                            <p style="color: #c53030;">❌ Error loading stages. Please refresh the page.</p>
+                        </div>
+                    `;
+                });
+        }
+        
+        function displayStages(stages) {
+            const container = document.getElementById('stagesList');
+            container.innerHTML = '';
+            
+            // Sort by stage number
+            const sorted = Object.values(stages).sort((a, b) => a.stage - b.stage);
+            
+            sorted.forEach(stage => {
+                const color = `rgb(${stage.color[0]}, ${stage.color[1]}, ${stage.color[2]})`;
+                const isSpoiled = stage.stage === 9;
+                const borderColor = isSpoiled ? '#fc8181' : '#667eea';
+                
+                container.innerHTML += `
+                    <div class="stage-reference-card" style="border-left-color: ${borderColor};">
+                        <div class="stage-indicator">
+                            <div class="stage-dot" style="background: ${color};"></div>
+                            <h4>Stage ${stage.stage}: ${stage.name}</h4>
+                            <span class="status-badge" style="background: ${color};">
+                                ${isSpoiled ? '⚠️' : '✓'}
+                            </span>
+                        </div>
+                        <p style="margin: 8px 0;">${stage.description}</p>
+                        <p><span class="usage-tag">📌 ${stage.usage}</span></p>
+                        ${isSpoiled ? '<p style="color: #c53030; font-weight: 600;">🚫 NOT EDIBLE - COMPOST ONLY</p>' : ''}
+                    </div>
+                `;
+            });
+        }
+        
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            // Find and activate correct tab
+            document.querySelectorAll('.tab').forEach(t => {
+                const tabText = t.textContent.toLowerCase().trim();
+                if (tabText.includes(tab)) {
+                    t.classList.add('active');
+                }
+            });
+            
+            document.getElementById(`${tab}-tab`).classList.add('active');
+            
+            // Stop camera if switching away from camera tab
+            if (tab !== 'camera') {
+                stopCamera();
+            }
+            
+            // Clear results when switching
+            if (tab !== 'upload') {
+                // Don't clear upload results immediately
+            }
+        }
+        
+        // ============================================
+        // FILE UPLOAD HANDLERS
+        // ============================================
+        function handleDragOver(event) {
+            event.preventDefault();
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+        
+        function handleDragLeave(event) {
+            event.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+        
+        function handleDrop(event) {
+            event.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files);
+            }
+        }
+        
+        function handleFileUpload(files) {
+            if (files.length === 0) return;
+            
+            const file = files[0];
+            
+            // Validate file type
+            const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                showMessage('uploadResults', 'error', '❌ Invalid file type. Please upload PNG, JPG, JPEG, or GIF.');
+                return;
+            }
+            
+            // Validate file size (16MB)
+            if (file.size > 16 * 1024 * 1024) {
+                showMessage('uploadResults', 'error', '❌ File too large. Maximum size is 16MB.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // Show loading
+            document.getElementById('uploadResults').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p style="color: #4a5568; font-weight: 500;">🔍 Analyzing banana...</p>
+                    <p style="color: #a0aec0; font-size: 14px;">This may take a few seconds</p>
+                </div>
+            `;
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(data => {
+                        throw new Error(data.error || 'Server error');
+                    });
+                }
+                return res.json();
+            })
+            .then(data => {
+                displayResults(data, 'uploadResults');
+            })
+            .catch(error => {
+                showMessage('uploadResults', 'error', `❌ Error: ${error.message}`);
+            });
+        }
+        
+        // ============================================
+        // DISPLAY RESULTS
+        // ============================================
+        function displayResults(data, containerId) {
+            const container = document.getElementById(containerId);
+            
+            if (!data.detected) {
+                container.innerHTML = `
+                    <div class="info-card" style="border-left: 4px solid #ed8936; margin-top: 20px;">
+                        <p style="font-size: 18px;">🔍 ${data.message || 'No banana detected in image'}</p>
+                        <p style="color: #718096; margin-top: 5px;">💡 Tips for better detection:</p>
+                        <ul style="color: #718096; margin-left: 20px; margin-top: 5px;">
+                            <li>Use a clear, well-lit image</li>
+                            <li>Make sure the banana is fully visible</li>
+                            <li>Try a different angle</li>
+                        </ul>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="results-container">
+                    <div class="image-preview">
+                        ${data.image_path ? `<img src="/uploads/${data.image_path}" alt="Uploaded Banana Image">` : 
+                         `<div class="placeholder">
+                            <span class="big-icon">🍌</span>
+                            <p>Image preview not available</p>
+                         </div>`}
+                        <div style="margin-top: 15px;">
+                            <span class="status-badge" style="background: #667eea;">
+                                📊 ${data.number_of_bananas} banana(s) detected
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-panel">
+                        <h3 style="margin-bottom: 15px;">📋 Analysis Results</h3>
+            `;
+            
+            data.results.forEach((result, index) => {
+                const stage = result.ripeness;
+                const color = `rgb(${stage.color[0]}, ${stage.color[1]}, ${stage.color[2]})`;
+                const isSpoiled = stage.stage === 9;
+                const borderColor = isSpoiled ? '#fc8181' : '#667eea';
+                const confidence = (result.confidence || 0.85) * 100;
+                
+                html += `
+                    <div class="info-card" style="border-left-color: ${borderColor};">
+                        <div class="stage-indicator">
+                            <div class="stage-dot" style="background: ${color};"></div>
+                            <h4>Banana ${index + 1}: ${stage.name}</h4>
+                            <span class="status-badge" style="background: ${color};">
+                                Stage ${stage.stage}
+                            </span>
+                        </div>
+                        <p style="margin: 5px 0;">${stage.description}</p>
+                        <p><span class="usage-tag">📌 ${stage.usage}</span></p>
+                        
+                        <div style="margin-top: 10px;">
+                            <div class="confidence-label">
+                                <span>Confidence</span>
+                                <span>${confidence.toFixed(1)}%</span>
+                            </div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: ${confidence}%;"></div>
+                            </div>
+                        </div>
+                `;
+                
+                // Show defects if any
+                if (result.defects && result.defects.has_defects) {
+                    html += `
+                        <div class="defect-alert">
+                            <strong>⚠️ Defects detected:</strong> ${result.defects.defect_type.join(', ')}
+                            <br><span style="font-size: 12px; color: #718096;">The banana may still be edible, but check carefully</span>
+                        </div>
+                    `;
+                }
+                
+                // Show color distribution
+                if (result.color_distribution) {
+                    const dist = result.color_distribution;
+                    html += `
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="number" style="color: #48bb78;">${(dist.green * 100).toFixed(0)}%</div>
+                                <div class="label">🟢 Green</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="number" style="color: #ecc94b;">${(dist.yellow * 100).toFixed(0)}%</div>
+                                <div class="label">🟡 Yellow</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="number" style="color: #a0522d;">${(dist.brown * 100).toFixed(0)}%</div>
+                                <div class="label">🟤 Brown</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (isSpoiled) {
+                    html += `
+                        <p style="color: #c53030; font-weight: 600; margin-top: 5px;">🚫 NOT EDIBLE - Compost recommended</p>
+                    `;
+                }
+                
+                html += `
+                        <p style="font-size: 11px; color: #a0aec0; margin-top: 8px;">
+                            🕐 ${new Date(result.timestamp).toLocaleString()}
+                        </p>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+            
+            // Scroll to results
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        // ============================================
+        // SHOW MESSAGE
+        // ============================================
+        function showMessage(containerId, type, message) {
+            const container = document.getElementById(containerId);
+            const isError = type === 'error';
+            const borderColor = isError ? '#fc8181' : '#48bb78';
+            const textColor = isError ? '#c53030' : '#276749';
+            
+            container.innerHTML = `
+                <div class="info-card" style="border-left-color: ${borderColor}; margin-top: 20px;">
+                    <p style="color: ${textColor}; font-size: 16px;">${message}</p>
+                </div>
+            `;
+        }
+        
+        // ============================================
+        // CAMERA FUNCTIONS
+        // ============================================
+        function startCamera() {
+            if (isCameraRunning) {
+                return;
+            }
+            
+            const videoElement = document.getElementById('liveCamera');
+            const placeholder = document.getElementById('cameraPlaceholder');
+            const status = document.getElementById('cameraStatus');
+            
+            navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' } 
+            })
+            .then(stream => {
+                cameraStream = stream;
+                videoElement.srcObject = stream;
+                videoElement.style.display = 'block';
+                placeholder.style.display = 'none';
+                isCameraRunning = true;
+                
+                // Update status
+                status.innerHTML = `
+                    <span class="dot green"></span>
+                    Live (${videoElement.videoWidth}x${videoElement.videoHeight})
+                `;
+                
+                // Start processing frames
+                if (cameraInterval) {
+                    clearInterval(cameraInterval);
+                }
+                cameraInterval = setInterval(processCameraFrame, 1000);
+                
+                console.log('✅ Camera started successfully');
+            })
+            .catch(error => {
+                console.error('Error accessing camera:', error);
+                let errorMessage = 'Unable to access camera. ';
+                if (error.name === 'NotAllowedError') {
+                    errorMessage += 'Please allow camera access in your browser.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage += 'No camera found on your device.';
+                } else {
+                    errorMessage += error.message;
+                }
+                showMessage('cameraResults', 'error', `❌ ${errorMessage}`);
+            });
+        }
+        
+        function stopCamera() {
+            if (cameraInterval) {
+                clearInterval(cameraInterval);
+                cameraInterval = null;
+            }
+            
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+            
+            const videoElement = document.getElementById('liveCamera');
+            videoElement.srcObject = null;
+            videoElement.style.display = 'none';
+            
+            const placeholder = document.getElementById('cameraPlaceholder');
+            placeholder.style.display = 'block';
+            
+            isCameraRunning = false;
+            
+            const status = document.getElementById('cameraStatus');
+            status.innerHTML = `
+                <span class="dot red"></span>
+                Stopped
+            `;
+            
+            console.log('⏹ Camera stopped');
+        }
+        
+        function processCameraFrame() {
+            if (!isCameraRunning || !cameraStream) return;
+            
+            const videoElement = document.getElementById('liveCamera');
+            
+            // Create a canvas to capture frame
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth || 640;
+            canvas.height = videoElement.videoHeight || 480;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            
+            // Get image data
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+            
+            // Send to server for processing
+            fetch('/process_video_frame', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: imageData })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.results) {
+                    // Update results
+                    displayCameraResults(data.results);
+                } else if (data.message) {
+                    // No banana detected - show subtle message
+                    const container = document.getElementById('cameraResults');
+                    container.innerHTML = `
+                        <div class="info-card" style="border-left-color: #ed8936;">
+                            <p style="color: #718096;">🔍 ${data.message}</p>
+                            <p style="font-size: 12px; color: #a0aec0;">Position a banana in the frame</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error processing frame:', error);
+            });
+        }
+        
+        function captureFromCamera() {
+            if (!isCameraRunning) {
+                showMessage('cameraResults', 'error', '❌ Please start the camera first.');
+                return;
+            }
+            
+            // Process current frame immediately
+            processCameraFrame();
+            showMessage('cameraResults', 'info', '📸 Captured and analyzing...');
+        }
+        
+        function displayCameraResults(results) {
+            const container = document.getElementById('cameraResults');
+            
+            if (!results || results.length === 0) {
+                container.innerHTML = `
+                    <div class="info-card" style="border-left-color: #ed8936;">
+                        <p>🔍 No banana detected in frame</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `<div style="margin-top: 15px;">`;
+            
+            results.forEach((result, index) => {
+                const stage = result.ripeness;
+                const color = `rgb(${stage.color[0]}, ${stage.color[1]}, ${stage.color[2]})`;
+                const isSpoiled = stage.stage === 9;
+                const borderColor = isSpoiled ? '#fc8181' : '#667eea';
+                const confidence = (result.confidence || 0.85) * 100;
+                
+                html += `
+                    <div class="info-card" style="border-left-color: ${borderColor};">
+                        <div class="stage-indicator">
+                            <div class="stage-dot" style="background: ${color};"></div>
+                            <h4 style="font-size: 14px;">Banana ${index + 1}: ${stage.name}</h4>
+                            <span class="status-badge" style="background: ${color}; font-size: 11px; padding: 3px 10px;">
+                                Stage ${stage.stage}
+                            </span>
+                        </div>
+                        <p style="font-size: 13px; margin: 3px 0;">${stage.description}</p>
+                        <p style="font-size: 12px;"><span class="usage-tag">${stage.usage}</span></p>
+                        <div style="margin-top: 5px;">
+                            <div class="confidence-label" style="font-size: 11px;">
+                                <span>Confidence</span>
+                                <span>${confidence.toFixed(1)}%</span>
+                            </div>
+                            <div class="confidence-bar" style="height: 5px;">
+                                <div class="confidence-fill" style="width: ${confidence}%;"></div>
+                            </div>
+                        </div>
+                `;
+                
+                if (result.defects && result.defects.has_defects) {
+                    html += `
+                        <div class="defect-alert" style="padding: 5px 10px; font-size: 13px;">
+                            <strong>⚠️ ${result.defects.defect_type.join(', ')}</strong>
+                        </div>
+                    `;
+                }
+                
+                if (isSpoiled) {
+                    html += `
+                        <p style="color: #c53030; font-weight: 600; font-size: 13px;">🚫 NOT EDIBLE</p>
+                    `;
+                }
+                
+                html += `</div>`;
+            });
+            
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+        
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        // Handle window close - stop camera
+        window.addEventListener('beforeunload', function() {
+            stopCamera();
+        });
+        
+        // Handle visibility change - stop camera when tab hidden
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isCameraRunning) {
+                // Optionally stop camera when tab is hidden to save resources
+                // Uncomment if desired: stopCamera();
+            }
+        });
+        
+        console.log('🍌 Banana Detection System Loaded Successfully!');
+        console.log('📸 Ready for image upload and live camera detection');
+    </script>
+</body>
+</html>
